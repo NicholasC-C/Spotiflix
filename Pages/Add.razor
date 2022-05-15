@@ -1,0 +1,106 @@
+﻿@using System.Text.Json;
+@page "/Add"
+@using Spotiflix.Data
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add Content</PageTitle>
+
+<h1>Add Content</h1>
+
+<button class="btn btn-primary" @onclick="AddMovie">Add Movie</button>
+<button class="btn btn-primary"@onclick="AddSeries">Add Series</button>
+<button class="btn btn-primary"@onclick="AddMusic">Add Music</button>
+@code {
+    Movie movie = new Movie();
+    Series series= new Series();
+    Music music = new Music();
+}
+<div hidden=@(!showMovieElements)>
+    <h3>Add Movie</h3>
+    <p>Title</p>
+    <input placeholder="Star Wars" @bind=@movie.title></input>
+    <p>Genre</p>
+    <input placeholder="action" @bind=@movie.genre></input>
+    <p>Length (minutes)</p>
+    <input type="number" placeholder="minutes" @bind=@movie.length></input>
+    <p>The selected date is: @movie.release_date.ToShortDateString()</p>
+    <input type="date" @bind-value=@movie.release_date/>
+    <p>Streaming service</p>
+    <input placeholder="www.netflix.com"@bind=@movie.streaming_service></input>
+    <br />
+    <button onclick=@confirmMovie>Add Movie</button>
+</div>
+
+<div hidden=@(!showSeriesElements)>
+    <h3>Add Series</h3>
+    <p>Title</p> <input placeholder="The Walking Dead" @bind=@series.title></input> <br />
+    <p>Genre</p> <input placeholder="action horror" @bind=@series.genre></input><br />
+    <p>Episode</p> <input type="number" placeholder="150" @bind=@series.episodes></input> <br />
+    <p>Season</p> <input type="number" placeholder="150" @bind=@series.seasons></input> <br />
+    <p>Length</p> <input type="number" placeholder="minutes" @bind=@series.seasons></input> <br />
+    <p>The selected date is: @series.release_date.ToShortDateString()</p> <input type="date" @bind-value=@series.release_date/> <br />
+    <p>Streaming service</p> <input placeholder="www.netflix.com"@bind=@series.streaming_service></input><br />
+    <button onclick=@confirmSeries>Add series</button>
+</div>
+<div hidden=@(!showMusicElements)>
+    <h3>Add Music track</h3>
+    <p>Title</p>
+    <input placeholder="Hallelujah" @bind=@music.title></input>
+    <p>Genre</p>
+    <input placeholder="Rock" @bind=@music.genre></input>
+    <p>Length (seconds)</p>
+    <input type="number" placeholder="seconds" @bind=@music.length></input>
+    <p>The selected date is: @music.release_date.ToShortDateString()</p>
+    <input type="date" @bind-value=@music.release_date/>
+    <p>Streaming service</p>
+    <input placeholder="e.g. https://open.spotify.com/album/4adKMYVbwASpIYG4Ky6GS0"@bind=@music.streaming_service></input>
+    <br />
+    <button onclick=@confirmMusic>Add music</button>
+</div>
+
+@code {
+    private bool showMovieElements {get;set;} = false;
+    private bool showSeriesElements {get;set;} = false;
+    private bool showMusicElements {get;set;} = false;
+    private void AddMovie()
+    {
+        showMovieElements = !showMovieElements;        
+        showSeriesElements = false;
+        showMusicElements = false;
+    }
+    private void AddSeries()
+    {
+        showSeriesElements = !showSeriesElements;
+        showMovieElements = false;
+        showMusicElements = false;
+    }
+    private void AddMusic()
+    {
+        showMusicElements = !showMusicElements;   
+        showSeriesElements = false;
+        showMovieElements = false;
+    }
+
+    private void confirmMovie()
+    {
+        writeToFile(JsonSerializer.Serialize(movie));
+    }
+
+    private void confirmSeries()
+    {
+        writeToFile(JsonSerializer.Serialize(series));
+    }
+    private void confirmMusic()
+    {
+        writeToFile(JsonSerializer.Serialize(music));
+    }
+
+    private void writeToFile(string text)
+    {
+        using (StreamWriter writer = new StreamWriter("Data/content.json", true))  
+        {  
+            writer.WriteLine(text);
+            NavigationManager.NavigateTo("Add", true);
+        }  
+    }
+}

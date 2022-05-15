@@ -1,0 +1,132 @@
+﻿@page "/ShowData"
+@using System.Text.Json;
+<PageTitle>Entertaintment list</PageTitle>
+@using Spotiflix.Data;
+@code {
+    string searchInput = "";
+    bool showMovies = true, showSeries = true, showMusic = true;
+ }
+<h3>Search:</h3>
+<input @bind=@searchInput/>
+<p>Movies</p>
+<input type="checkbox" @bind="showMovies">
+<p>Series</p>
+<input type="checkbox" @bind="showSeries">
+<p>Music</p>
+<input type="checkbox" @bind="showMusic">
+<h1>All movies, series and music</h1>
+@code {
+    public List<Movie> movies = new List<Movie>();
+    public List<Series> series = new List<Series>();
+    public List<Music> musics = new List<Music>();
+    public HandleData d = new HandleData();
+
+    protected override async Task OnInitializedAsync()
+    {
+        startup();
+    }
+    void startup()
+    {
+        readAllDataFromFile();
+    }
+    void readAllDataFromFile()
+    {
+        using (StreamReader sr = new StreamReader("Data/content.json"))
+        {
+            string line;
+            while ((line = sr.ReadLine()) != null)
+            {
+                if (line.Contains("\"type\":0"))
+                {
+                    movies.Add(JsonSerializer.Deserialize<Movie>(line));
+                } else if (line.Contains("\"type\":1"))
+                {
+                    series.Add(JsonSerializer.Deserialize<Series>(line));
+                } else if (line.Contains("\"type\":2"))
+                {
+                    musics.Add(JsonSerializer.Deserialize<Music>(line));
+                }
+            }
+        }
+    }
+}
+<div hidden=@(!showMovies)>
+<h3> Movies </h3>
+    <table class="table">
+        <thead>
+            <tr>                <th>Title</th>
+                <th>Genre</th>
+                <th>Length</th>
+                <th>Release Date</th>
+                <th>Streaming website</th>
+            </tr>
+        </thead>
+    @foreach(Movie items in movies) {
+        <tbody hidden=@(!JsonSerializer.Serialize(items).ToLower().Contains(searchInput.ToLower()))>
+                <tr>
+                    <td>@items.title</td>
+                    <td>@items.genre</td>
+                    <td>@items.getLength()</td>
+                    <td>@items.release_date.Date</td>
+                    <td>@items.streaming_service</td>
+                </tr>
+        </tbody>
+    }
+    </table>
+</div>
+<div hidden=@(!showSeries)>
+<h3> Series </h3>
+        <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Length</th>
+                <th>Release Date</th>
+                <th>Streaming website</th>
+                <th>Episodes</th>
+            </tr>
+        </thead>
+    @foreach(Series items in series) {
+        <tbody hidden=@(!JsonSerializer.Serialize(items).ToLower().Contains(searchInput.ToLower()))>
+                <tr>
+                    <td>@items.title</td>
+                    <td>@items.genre</td>
+                    <td>@items.getLength()</td>
+                    <td>@items.release_date.Date</td>
+                    <td>@items.streaming_service</td>
+                    <td>@items.episodes</td>
+                </tr>
+        </tbody>
+    }
+    </table>  
+</div>
+<div hidden=@(!showMusic)>
+<h3> Music </h3>
+     <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Length</th>
+                <th>Release Date</th>
+                <th>Streaming website</th>
+                <th>Artist</th>
+                <th>Album</th>
+            </tr>
+        </thead>
+    @foreach(Music items in musics) {
+        <tbody hidden=@(!JsonSerializer.Serialize(items).ToLower().Contains(searchInput.ToLower()))>
+                <tr>
+                    <td>@items.title</td>
+                    <td>@items.genre</td>
+                    <td>@items.getLength()</td>
+                    <td>@items.release_date.Date</td>
+                    <td>@items.streaming_service</td>
+                    <td>@items.artist</td>
+                    <td>@items.album</td>
+                </tr>
+        </tbody>
+    }
+    </table>
+</div>
